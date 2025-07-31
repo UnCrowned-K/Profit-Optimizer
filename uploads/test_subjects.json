@@ -1,0 +1,83 @@
+[
+    {
+        "name": "coffee cake",
+        "lowerBound": 0,
+        "upperBound": null,
+        "profit": 1.80,
+        "integer": true,
+        "multiplier": 8
+    },
+    {
+        "name": "chocolate cake",
+        "lowerBound": 0,
+        "upperBound": null,
+        "profit": 1.60,
+        "integer": true,
+        "multiplier": 1
+    },
+    {
+        "name": "vanilla sponge",
+        "lowerBound": 5,
+        "upperBound": 20,
+        "profit": 2.10,
+        "integer": true,
+        "multiplier": 3
+    },
+    {
+        "name": "fruit cake",
+        "lowerBound": 1,
+        "upperBound": 10,
+        "profit": 2.50,
+        "integer": false,
+        "multiplier": 2
+    },
+    {
+        "name": "carrot cake",
+        "lowerBound": 2,
+        "upperBound": 15,
+        "profit": 2.30,
+        "integer": true,
+        "multiplier": 1
+    },
+    {
+        "name": "red velvet cake",
+        "lowerBound": 0,
+        "upperBound": 12,
+        "profit": 1.90,
+        "integer": false,
+        "multiplier": 4
+    },
+    {
+        "name": "lemon drizzle",
+        "lowerBound": 3,
+        "upperBound": null,
+        "profit": 2.00,
+        "integer": true,
+        "multiplier": 5
+    },
+    {
+        "name": "cheesecake",
+        "lowerBound": 1,
+        "upperBound": 8,
+        "profit": 2.80,
+        "integer": true,
+        "multiplier": 6
+    },
+    {
+        "name": "black forest cake",
+        "lowerBound": 4,
+        "upperBound": 10,
+        "profit": 3.00,
+        "integer": true,
+        "multiplier": 7
+    },
+    {
+        "name": "banana bread",
+        "lowerBound": 0,
+        "upperBound": 5,
+        "profit": 1.50,
+        "integer": true,
+        "multiplier": 2
+    }
+]
+
