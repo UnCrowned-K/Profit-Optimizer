@@ -13,8 +13,8 @@ Functions:
     optimize: Solve the optimization problem.
     clear_variables: Clear the variables list.
 
-@author: Mafu
-@date: 2025-06-14
+@author: Bongani
+@date: 2025-09-18
 """
 
 from dataclasses import dataclass, asdict
@@ -34,8 +34,8 @@ class IntegerVariable:
     name: str
     lowerBound: int = 0
     upperBound: Optional[int] = None
+    cost: float = 0.0
     profit: float = 0.0
-    integer: bool = True
     multiplier: int = 1
 
     def to_dict(self) -> Dict:
@@ -62,8 +62,7 @@ class IntegerVariable:
 # Global variables list
 variables_list: List[IntegerVariable] = []
 
-def create_integer_variable(name: str, lowerBound: int, upperBound: Optional[int],
-                          profit: float, integer: bool = True, multiplier: int = 1) -> None:
+def create_integer_variable(name: str, lowerBound: int, upperBound: Optional[int], cost: float, profit: float, multiplier: int = 1) -> None:
     """
     Create and validate an IntegerVariable, then add it to the global list.
     
@@ -71,15 +70,14 @@ def create_integer_variable(name: str, lowerBound: int, upperBound: Optional[int
         name: Name of the variable.
         lowerBound: Minimum value.
         upperBound: Maximum value (None for unbounded).
+        cost: Cost per unit.
         profit: Profit per unit.
-        integer: Whether variable must be integer.
         multiplier: Scaling factor.
     
     Raises:
         OptimizationError: If validation fails.
     """
-    var = IntegerVariable(name=name, lowerBound=lowerBound, upperBound=upperBound,
-                         profit=profit, integer=integer, multiplier=multiplier)
+    var = IntegerVariable(name=name, lowerBound=lowerBound, upperBound=upperBound, cost=cost, profit=profit, multiplier=multiplier)
     var.validate()
     variables_list.append(var)
 
@@ -114,9 +112,7 @@ def optimize(variables: List[IntegerVariable], budget: float) -> Tuple[float, Di
 
     # Create PuLP variables
     for var in variables:
-        lp_vars[var.name] = LpVariable(var.name, lowBound=var.lowerBound,
-                                     upBound=var.upperBound,
-                                     cat='Integer' if var.integer else 'Continuous')
+        lp_vars[var.name] = LpVariable(var.name, lowBound=var.lowerBound, upBound=var.upperBound)
 
     # Add constraints
     budget_constraint = lpSum([var.multiplier * lp_vars[var.name] for var in variables])

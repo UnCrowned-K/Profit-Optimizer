@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profit Optimizer</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">    <title>Linear Programming Optimizer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"> 
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -20,7 +20,8 @@
                     </div>
                 {% endfor %}
             {% endif %}
-        {% endwith %}        <!-- Variable Input Modal -->
+        {% endwith %}        
+        <!-- Variable Input Modal -->
         <div id="addVariableModal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
@@ -45,13 +46,13 @@
                         </div>
 
                         <div>
-                            <label for="profit">Profit per Item:</label>
-                            <input type="number" class="form-control" id="profit" name="profit" step="0.01" required>
+                            <label for="cost">Cost per Item:</label>
+                            <input type="number" class="form-control" id="cost" name="cost" step="0.01" required>
                         </div>
 
-                        <div class="checkbox-group">
-                            <label for="integer">Is Integer?</label>
-                            <input type="checkbox" id="integer" name="integer" checked>
+                        <div>
+                            <label for="profit">Profit per Item:</label>
+                            <input type="number" class="form-control" id="profit" name="profit" step="0.01" required>
                         </div>
 
                         <div>
@@ -92,13 +93,14 @@
             </div>
             {% if variables %}
             <div class="table-responsive">
-                <table class="table">                    <thead>
+                <table class="table">           
+                    <thead>
                         <tr>
                             <th>Name</th>
                             <th>Minimum Item(s)</th>
                             <th>Maximum Item(s)</th>
+                            <th>Cost</th>
                             <th>Profit</th>
-                            <th>Integer</th>
                             <th>Number of Item(s)</th>
                             <th>Actions</th>
                         </tr>
@@ -109,17 +111,18 @@
                             <td>{{ var.name }}</td>
                             <td>{{ var.lowerBound }}</td>
                             <td>{{ var.upperBound if var.upperBound != None else "∞" }}</td>
+                            <td>R{{ "%.2f"|format(var.cost) }}</td>
                             <td>R{{ "%.2f"|format(var.profit) }}</td>
-                            <td>{{ "Yes" if var.integer else "No" }}</td>
-                            <td>{{ var.multiplier }}</td>                            <td class="table-actions-cell">
+                            <td>{{ var.multiplier }}</td>                            
+                            <td class="table-actions-cell">
                                 <div class="button-group">
                                     <button type="button" class="btn btn-primary btn-sm"
                                             onclick='editVariable({{ {
                                             "name": var.name,
                                             "lowerBound": var.lowerBound,
                                             "upperBound": var.upperBound,
+                                            "cost": var.cost,
                                             "profit": var.profit,
-                                            "integer": var.integer,
                                             "multiplier": var.multiplier
                                             } | tojson | safe }})'>
                                         Edit
@@ -144,38 +147,68 @@
         </section>
 
         <!-- Constraints Section -->
-        <section class="section card">
-            <h2 class="card-title">Constraints</h2>
-            <form method="POST" class="form-group">
-                <label for="budget">Budget Constraint:</label>
-                <div class="input-group">
-                    <span class="input-group-text">R<input type="number" class="form-control" style="width: 10vw;" name="budget" placeholder="Amount in rands" id="budget" value="{{ budget }}" min="0" required></span>
+        <section class="constraints-sec"> 
+            <section class="section card constraints-con">
+                <h2 class="card-title">Budget</h2>
+                <form method="POST" class="form-group">
+                    <div class="input-group">
+                        <span class="constraints-input input-group-text">R<input type="number" class="form-control" name="budget" placeholder="Amount in rands" id="budget" value="{{ budget }}" min="0" required></span>
+                    </div>
+                    <br>
+                    <button type="submit" name="update_budget" class="btn btn-primary">Update Budget</button>
+                </form>
+
+                <br><hr><br>
+
+                <h2 class="card-title">Optimization</h2>
+                <form method="POST">
+                    <button type="submit" name="optimize" class="btn btn-success">Run Optimization</button>
+                </form>
+            </section>
+            
+            <!-- Results Section -->
+            <section class="section card results-con">
+
+                {% if max_profit %}
+                <div>
+                    <h2 class="card-title">Results</h2>
+                    <p class="profit"><strong>Projected Profit:</strong> R{{ "%.2f"|format(max_profit - budget ) }}</p>
+
+                    <h4>Optimal Item(s):</h4>
+                    <div class="table-responsive">
+
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Number of Item(s)</th>
+                                    <th>Total Cost</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for name, value in result.items() %}
+                                    <tr>
+                                        {% if value > 0 %}
+                                            <td>{{ name }}</td>
+                                            <td>{{ value }}</td>
+                                            <td></td>
+                                        {% endif%}
+                                    </tr>
+                                {% endfor %}    
+
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <button type="submit" name="update_budget" class="btn btn-primary">Update Budget</button>
-            </form>
+                <form method="POST" action="/download" class="inline-form">
+                    <input type="hidden" id="download-filename" name="filename" value="variables.json">
+                    <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                </form>
+                {% endif %}       
+            </section>
         </section>
-        
-        <!-- Optimization Section -->
-        <section class="section card">
-            <h2 class="card-title">Optimization</h2>
-            <form method="POST">
-                <button type="submit" name="optimize" class="btn btn-success">Run Optimization</button>
-            </form>
-
-            {% if max_profit %}
-            <div class="results">
-                <h3>Results</h3>
-                <p class="profit"><strong>Maximum Profit:</strong> R{{ "%.2f"|format(max_profit) }}</p>
-
-                <h4>Optimal Values:</h4>
-                <ul class="result-list">
-                    {% for name, value in result.items() %}
-                    <li><strong>{{ name }}:</strong> {{ value }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endif %}        </section>
-    </div>    <script>
+    </div>   
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
             // File name updating
             function updateFileName(value) {
@@ -217,8 +250,8 @@
                     form.name.value = variable.name;
                     form.lowerBound.value = variable.lowerBound;
                     form.upperBound.value = variable.upperBound;
+                    form.cost.value = variable.cost;
                     form.profit.value = variable.profit;
-                    form.integer.checked = variable.integer;
                     form.multiplier.value = variable.multiplier;
                     
                     modal.style.display = 'block';

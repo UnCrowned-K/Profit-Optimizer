@@ -69,8 +69,8 @@ def parse_variable_form() -> Tuple[Dict[str, Any], bool]:
             'name': request.form['name'],
             'lowerBound': int(request.form['lowerBound']) if request.form['lowerBound'] else 0,
             'upperBound': int(request.form['upperBound']) if request.form['upperBound'] else None,
+            'cost': float(request.form['cost']),
             'profit': float(request.form['profit']),
-            'integer': bool(request.form.get('integer')),
             'multiplier': int(request.form['multiplier'])
         }
         return data, True
@@ -108,7 +108,7 @@ def index():
         
         elif "optimize" in request.form:
             if not variables_list:
-                flash("No items to optimize. Additmes first.", "error")
+                flash("No items to optimize. Add items first.", "error")
             else:
                 try:
                     max_profit, result = optimize(variables_list, budget)
@@ -126,10 +126,11 @@ def index():
 def export_variables():
     """Export variables to a JSON file in the exports folder."""
     try:
-        filename = safe_filename(request.form.get("filename", "variables.json"))
+        filename = safe_filename(request.form.get("filename", "variables.json")) # add user input here
         filepath = os.path.join(app.config['EXPORT_FOLDER'], filename)
         handle_file_operation('save', filepath)
-        flash(f"Variables exported successfully!", "success")
+        flash(f"Table exported successfully!", "success")
+        # return send_file(filepath, as_attachment=True, export_name=filename)
     except Exception as e:
         flash(f"Export failed: {str(e)}", "error")
     return redirect(url_for("index"))
