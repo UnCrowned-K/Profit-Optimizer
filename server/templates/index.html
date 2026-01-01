@@ -5,209 +5,232 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profit Optimizer</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"> 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1 class="section-title">Profit Optimizer</h1>
-        
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="flash-message {{ category }}" role="alert">
-                        {{ message }}
+    <section id="con-sec">
+        <div class="side-nav">
+            <nav>
+                <ul>
+                    <li><a href="./home.html">Home</a></li>
+                    <li><a href="/">Profit Optimizer</a></li>
+                    <li><a href="./finance.html">Finances</a></li>
+                    <li><a href="#">Invoice Generator</a></li>
+                    <br/>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Settings</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="container">
+            <h1 class="section-title">Profit Optimizer</h1>
+            
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}        
+            <!-- Variable Input Modal -->
+            <div id="addVariableModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Add Item</h2>
+                        <span class="close">&times;</span>
                     </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}        
-        <!-- Variable Input Modal -->
-        <div id="addVariableModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2 class="modal-title">Add Item</h2>
-                    <span class="close">&times;</span>
+                    <form method="POST" class="form-group">
+                        <div class="modal-body">
+                            <div>
+                                <label for="name">Item Name:</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+
+                            <div>
+                                <label for="lowerBound">Minimum Item(s):</label>
+                                <input type="number" class="form-control" id="lowerBound" name="lowerBound" value="0">
+                            </div>
+
+                            <div>
+                                <label for="upperBound">Maximum Item(s):</label>
+                                <input type="number" class="form-control" id="upperBound" name="upperBound">
+                            </div>
+
+                            <div>
+                                <label for="cost">Cost per Item:</label>
+                                <input type="number" class="form-control" id="cost" name="cost" step="0.01" required>
+                            </div>
+
+                            <div>
+                                <label for="profit">Profit per Item:</label>
+                                <input type="number" class="form-control" id="profit" name="profit" step="0.01" required>
+                            </div>
+
+                            <div>
+                                <label for="multiplier">Number of Item(s):</label>
+                                <input type="number" class="form-control" id="multiplier" name="multiplier" value="1" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                            <button type="submit" name="add_variable" class="btn btn-primary">Add Item</button>
+                        </div>
+                    </form>
                 </div>
-                <form method="POST" class="form-group">
-                    <div class="modal-body">
-                        <div>
-                            <label for="name">Item Name:</label>
-                            <input type="text" class="form-control" id="name" name="name" required>
+            </div><!-- Current Variables Section -->
+            <section class="section card">
+                <div class="section-header">
+                    <h2 class="card-title">Current Items</h2>
+                    <div class="file-controls">
+                        <input type="text" class="form-control filename-input" id="filename" value="MyItems.json" required
+                            oninput="updateFileName(this.value)" aria-label="File name for export or download">
+                        <div class="button-group">
+                            <form method="post" action="/export" class="inline-form">
+                                <input type="hidden" id="export-filename" name="filename" value="variables.json">
+                                <button type="submit" class="btn btn-primary btn-sm">Export</button>
+                            </form>
+                            <form method="POST" action="/download" class="inline-form">
+                                <input type="hidden" id="download-filename" name="filename" value="variables.json">
+                                <button type="submit" class="btn btn-primary btn-sm">Download</button>
+                            </form>
+                            <form method="post" action="/import" enctype="multipart/form-data" class="inline-form import-form">
+                                <label for="file" class="btn btn-primary btn-sm upload-btn">
+                                    Upload File
+                                    <input type="file" class="hidden-file-input" id="file" name="file" accept=".json" onchange="this.form.submit()">
+                                </label>
+                            </form>
                         </div>
-
-                        <div>
-                            <label for="lowerBound">Minimum Item(s):</label>
-                            <input type="number" class="form-control" id="lowerBound" name="lowerBound" value="0">
-                        </div>
-
-                        <div>
-                            <label for="upperBound">Maximum Item(s):</label>
-                            <input type="number" class="form-control" id="upperBound" name="upperBound">
-                        </div>
-
-                        <div>
-                            <label for="cost">Cost per Item:</label>
-                            <input type="number" class="form-control" id="cost" name="cost" step="0.01" required>
-                        </div>
-
-                        <div>
-                            <label for="profit">Profit per Item:</label>
-                            <input type="number" class="form-control" id="profit" name="profit" step="0.01" required>
-                        </div>
-
-                        <div>
-                            <label for="multiplier">Number of Item(s):</label>
-                            <input type="number" class="form-control" id="multiplier" name="multiplier" value="1" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                        <button type="submit" name="add_variable" class="btn btn-primary">Add Item</button>
-                    </div>
-                </form>
-            </div>
-        </div><!-- Current Variables Section -->
-        <section class="section card">
-            <div class="section-header">
-                <h2 class="card-title">Current Items</h2>
-                <div class="file-controls">
-                    <input type="text" class="form-control filename-input" id="filename" value="MyItems.json" required
-                           oninput="updateFileName(this.value)" aria-label="File name for export or download">
-                    <div class="button-group">
-                        <form method="post" action="/export" class="inline-form">
-                            <input type="hidden" id="export-filename" name="filename" value="variables.json">
-                            <button type="submit" class="btn btn-primary btn-sm">Export</button>
-                        </form>
-                        <form method="POST" action="/download" class="inline-form">
-                            <input type="hidden" id="download-filename" name="filename" value="variables.json">
-                            <button type="submit" class="btn btn-primary btn-sm">Download</button>
-                        </form>
-                        <form method="post" action="/import" enctype="multipart/form-data" class="inline-form import-form">
-                            <label for="file" class="btn btn-primary btn-sm upload-btn">
-                                Upload JSON
-                                <input type="file" class="hidden-file-input" id="file" name="file" accept=".json" onchange="this.form.submit()">
-                            </label>
-                        </form>
                     </div>
                 </div>
-            </div>
-            {% if variables %}
-            <div class="table-responsive">
-                <table class="table">           
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Minimum Item(s)</th>
-                            <th>Maximum Item(s)</th>
-                            <th>Cost</th>
-                            <th>Profit</th>
-                            <th>Number of Item(s)</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for var in variables %}
-                        <tr>
-                            <td>{{ var.name }}</td>
-                            <td>{{ var.lowerBound }}</td>
-                            <td>{{ var.upperBound if var.upperBound != None else "∞" }}</td>
-                            <td>R{{ "%.2f"|format(var.cost) }}</td>
-                            <td>R{{ "%.2f"|format(var.profit) }}</td>
-                            <td>{{ var.multiplier }}</td>                            
-                            <td class="table-actions-cell">
-                                <div class="button-group">
-                                    <button type="button" class="btn btn-primary btn-sm"
-                                            onclick='editVariable({{ {
-                                            "name": var.name,
-                                            "lowerBound": var.lowerBound,
-                                            "upperBound": var.upperBound,
-                                            "cost": var.cost,
-                                            "profit": var.profit,
-                                            "multiplier": var.multiplier
-                                            } | tojson | safe }})'>
-                                        Edit
-                                    </button>
-                                    <form method="POST" action="{{ url_for('delete_variable', name=var.name) }}" 
-                                          class="inline-form" 
-                                          onsubmit="return confirm('Are you sure you want to delete this variable?');">
-                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>            {% else %}
-            <p>No variables added yet.</p>
-            {% endif %}
-            <div class="table-actions">
-                <button type="button" class="btn btn-primary" onclick="openModal()">Add Item</button>
-            </div>
-        </section>
+                {% if variables %}
+                <div class="table-responsive">
+                    <table class="table">           
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Minimum Item(s)</th>
+                                <th>Maximum Item(s)</th>
+                                <th>Cost</th>
+                                <th>Profit</th>
+                                <th>Number of Item(s)</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for var in variables %}
+                            <tr>
+                                <td>{{ var.name }}</td>
+                                <td>{{ var.lowerBound }}</td>
+                                <td>{{ var.upperBound if var.upperBound != None else "∞" }}</td>
+                                <td>R{{ "%.2f"|format(var.cost) }}</td>
+                                <td>R{{ "%.2f"|format(var.profit) }}</td>
+                                <td>{{ var.multiplier }}</td>                            
+                                <td class="table-actions-cell">
+                                    <div class="button-group">
+                                        <button type="button" class="btn btn-primary btn-sm"
+                                                onclick='editVariable({{ {
+                                                "name": var.name,
+                                                "lowerBound": var.lowerBound,
+                                                "upperBound": var.upperBound,
+                                                "cost": var.cost,
+                                                "profit": var.profit,
+                                                "multiplier": var.multiplier
+                                                } | tojson | safe }})'>
+                                            Edit
+                                        </button>
+                                        <form method="POST" action="{{ url_for('delete_variable', name=var.name) }}" 
+                                            class="inline-form" 
+                                            onsubmit="return confirm('Are you sure you want to delete this variable?');">
+                                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>            {% else %}
+                <p>No variables added yet.</p>
+                {% endif %}
+                <div class="table-actions">
+                    <button type="button" class="btn btn-primary" onclick="openModal()">Add Item</button>
+                </div>
+            </section>
 
-        <!-- Constraints Section -->
-        <section class="constraints-sec"> 
-            <section class="section card constraints-con">
-                <h2 class="card-title">Budget</h2>
-                <form method="POST" class="form-group">
-                    <div class="input-group">
-                        <span class="constraints-input input-group-text">R<input type="number" class="form-control" name="budget" placeholder="Amount in rands" id="budget" value="{{ budget }}" min="0" required></span>
+            <!-- Constraints Section -->
+            <section class="constraints-sec"> 
+                <section class="section card constraints-con">
+                    <h2 class="card-title">Budget</h2>
+                    <form method="POST" class="form-group">
+                        <div class="input-group">
+                            <span class="constraints-input input-group-text">R<input type="number" class="form-control" name="budget" placeholder="Amount in rands" id="budget" value="{{ budget }}" min="0" required></span>
+                        </div>
+                        <br>
+                        <button type="submit" name="update_budget" class="btn btn-primary">Update Budget</button>
+                    </form>
+
+                    <br><hr><br>
+
+                    <h2 class="card-title">Optimization</h2>
+                    <form method="POST">
+                        <button type="submit" name="optimize" class="btn btn-success">Run Optimization</button>
+                    </form>
+                </section>
+                
+                <!-- Results Section -->
+                <section class="section card results-con">
+
+                    {% if max_profit %}
+                    <div>
+                        <h2 class="card-title">Results</h2>
+                        <p class="profit"><strong>Projected Profit:</strong> R{{ "%.2f"|format(max_profit - budget ) }}</p>
+
+                        <h4>Optimal Item(s):</h4>
+                        <div class="table-responsive">
+
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Number of Item(s)</th>
+                                        <th>Item(s) Cost</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for name, value in result.items() %}
+                                        <tr>
+                                            {% if value > 0 %}
+                                                <td>{{ name }}</td>
+                                                <td>{{ value }}</td>
+                                                <td>{{ value }}</td>
+                                            {% endif%}
+                                        </tr>
+                                    {% endfor %}    
+
+                                </tbody>
+                            </table>
+
+                            <div class="total">
+                                <span>Total</span>
+                                <span>R1000</span>
+                            </div>
+                            
+                        </div>
                     </div>
                     <br>
-                    <button type="submit" name="update_budget" class="btn btn-primary">Update Budget</button>
-                </form>
-
-                <br><hr><br>
-
-                <h2 class="card-title">Optimization</h2>
-                <form method="POST">
-                    <button type="submit" name="optimize" class="btn btn-success">Run Optimization</button>
-                </form>
+                    
+                    <form method="POST" action="/download" class="inline-form">
+                        <input type="hidden" id="download-filename" name="filename" value="variables.json">
+                        <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                    </form>
+                    {% endif %}       
+                </section>
             </section>
-            
-            <!-- Results Section -->
-            <section class="section card results-con">
-
-                {% if max_profit %}
-                <div>
-                    <h2 class="card-title">Results</h2>
-                    <p class="profit"><strong>Projected Profit:</strong> R{{ "%.2f"|format(max_profit - budget ) }}</p>
-
-                    <h4>Optimal Item(s):</h4>
-                    <div class="table-responsive">
-
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Number of Item(s)</th>
-                                    <th>Total Cost</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for name, value in result.items() %}
-                                    <tr>
-                                        {% if value > 0 %}
-                                            <td>{{ name }}</td>
-                                            <td>{{ value }}</td>
-                                            <td></td>
-                                        {% endif%}
-                                    </tr>
-                                {% endfor %}    
-
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <form method="POST" action="/download" class="inline-form">
-                    <input type="hidden" id="download-filename" name="filename" value="variables.json">
-                    <button type="submit" class="btn btn-primary btn-sm">Save</button>
-                </form>
-                {% endif %}       
-            </section>
-        </section>
-    </div>   
+        </div>   
+    </section>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // File name updating

@@ -9,7 +9,7 @@ Features:
 - Set budget constraints and maximize profit.
 - Clean separation of concerns (web UI, optimization logic, configuration).
 
-@author: Mafu
+@author: Bongani
 @date: 2025-06-14
 """
 
@@ -116,11 +116,11 @@ def index():
                 except OptimizationError as e:
                     flash(f"Optimization failed: {str(e)}", "error")
 
-    return render_template("index.html",
-                         variables=variables_list,
-                         max_profit=max_profit,
-                         result=result,
-                         budget=budget)
+    return render_template("index.html",variables=variables_list, max_profit=max_profit, result=result, budget=budget)
+
+# @app.route("/home.html", methods=["GET"])
+# def home():
+#     return render_template("home.html")
 
 @app.route("/export", methods=["POST"])
 def export_variables():

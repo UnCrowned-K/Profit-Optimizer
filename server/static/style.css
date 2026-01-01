@@ -17,6 +17,15 @@ body {
     color: var(--text-color);
 }
 
+li {
+    list-style: none;
+}
+
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
 hr {
     border: 1px solid var(--primary-color);
 }
@@ -379,4 +388,35 @@ hr {
         margin: 10% auto;
         width: 95%;
     }
+}
+
+
+
+#con-sec {
+    display: flex;
+}
+
+.side-nav {
+    flex: 15%;
+    background-color: var(--primary-color);
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.container {
+    flex: 85%;
+}
+
+.total {
+    display: flex;
+}
+
+.total span {
+    flex: 1;
+    color: white;
+    text-align: left;
+    background: var(--primary-color);
+    border: 1px solid var(--border-color);
+    padding: 0.75rem;
 }
