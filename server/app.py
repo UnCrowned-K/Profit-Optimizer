@@ -38,6 +38,9 @@ def create_app(config_class=Config) -> Flask:
 app = create_app()
 budget = Config.DEFAULT_BUDGET
 
+if __name__ == "__main__":
+    app.run(debug=True)
+
 def safe_filename(filename: str) -> str:
     """Generate a secure filename and ensure .json extension."""
     filename = secure_filename(filename)
